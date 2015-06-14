@@ -1,0 +1,13 @@
+html,
+body,
+#map-canvas {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+}
+
+h1 {
+	text-align: center;
+	font-family: Lato, Arial, sans-serif;
+	font-weight: normal;
+}
