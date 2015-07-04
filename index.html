@@ -7,6 +7,14 @@
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
+	<header>
+		<input type="text" placeholder="search">
+	</header>
+	<aside>
+		<ul data-bind="foreach: markers">
+			<li data-bind="text: title"></li>
+		</ul>
+	</aside>
   <main id="map-canvas">
 	</main>
 	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA62qa-y153fRIuEO4MQP7tN1QY3CjycXA"></script>

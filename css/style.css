@@ -11,3 +11,19 @@ h1 {
 	font-family: Lato, Arial, sans-serif;
 	font-weight: normal;
 }
+
+aside {
+	position: absolute;
+	z-index: 1;
+	right: 0;
+	margin: 10px;
+	padding: 20px;
+	background-color: rgba(100, 100, 100, 0.8);
+}
+
+ul {
+	font-family: Lato, Arial, sans-serif;
+	font-size: 24px;
+	color: #fff;
+	margin: 0;
+}
