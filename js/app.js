@@ -45,6 +45,10 @@ $(function () {
 			new google.maps.Marker(self.markers()[i]);
 		}
 		
+		self.displayResults = function() {
+			console.log("Ça marche !");
+		};
+		
 	};
 		
 	

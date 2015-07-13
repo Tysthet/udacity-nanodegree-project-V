@@ -7,13 +7,13 @@
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-	<header>
-		<input type="text" placeholder="search">
-	</header>
 	<aside>
 		<ul data-bind="foreach: markers">
 			<li data-bind="text: title"></li>
 		</ul>
+		<div>
+			<input type="text" id="search-markers" placeholder="search" data-bind="event: { keyup: displayResults }">
+		</div>
 	</aside>
   <main id="map-canvas">
 	</main>
