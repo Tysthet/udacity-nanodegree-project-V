@@ -6,6 +6,10 @@ body,
 	padding: 0;
 }
 
+body {
+	font-size: 100%;
+}
+
 h1 {
 	text-align: center;
 	font-family: Lato, Arial, sans-serif;
@@ -21,7 +25,8 @@ aside {
 
 ul {
 	font-family: Lato, Arial, sans-serif;
-	font-size: 24px;
+	font-size: 1.5em;
+	line-height: 2em;
 	color: #fff;
 	margin: 0 0 20px 0;
 	padding: 20px;
@@ -35,7 +40,7 @@ li:hover {
 
 aside div {
 	font-family: Lato, Arial, sans-serif;
-	font-size: 24px;
+	font-size: 1.5em;
 	background-color: rgba(100, 100, 100, 0.8);
 	padding: 20px;
 }

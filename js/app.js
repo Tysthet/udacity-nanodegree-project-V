@@ -1,4 +1,8 @@
-$(function () {
+var googleError = function() {
+	$("main").text("Something went wrong with Google Maps. Check your internet access.");
+};
+
+var googleSuccess = function () {
 	
 	var initialData = {
 		mainMap: {
@@ -31,26 +35,84 @@ $(function () {
 				position: new google.maps.LatLng(48.82423,2.29881),
 				title: 'McDonald\'s Brancion'
 			}
-		]
+		],
+		contentString : function(heading) {
+			return '<div id="infoContent">'+
+						'<h1>'+ heading +'</h1>' +
+						'<p>Some random text</p>' +
+						'</div>';
+		}
 	};
 	
 	var ViewModel = function () {
 		var self = this;
 		
-		self.map = new google.maps.Map(document.getElementById('map-canvas'), initialData.mainMap);
+		self.map = ko.observable(new google.maps.Map(document.getElementById('map-canvas'), initialData.mainMap));
 		
-		self.markers = ko.observableArray(initialData.mapMarkers);
-		for (var i = 0; i < self.markers().length; i++) {
-			self.markers()[i].map = self.map;
-			new google.maps.Marker(self.markers()[i]);
-		}
+		self.userInput = ko.observable('');
+
+		self.markers = ko.observableArray();
+		initialData.mapMarkers.forEach(function(place) {
+			self.markers.push(place);
+		});
 		
-		self.displayResults = function() {
-			console.log("Ça marche !");
+		self.infoWindow = ko.observable(new google.maps.InfoWindow({
+				content: ""
+			}));
+		
+		self.allMarkers = [];
+		self.setMarkers = ko.computed(function() {
+			for (var i = 0; i < self.markers().length; i++) {
+				self.markers()[i].map = self.map();
+				var marker = new google.maps.Marker(self.markers()[i]);
+				self.allMarkers.push(marker);
+
+				marker.addListener('click', (function() {
+					return function() {
+						self.map().panTo(this.position);
+						
+						self.infoWindow().content = initialData.contentString(this.title);
+						self.infoWindow().open(self.map(), this);
+					};
+				})());
+			}
+		}, this);
+		
+		self.filterMarkers = function() {
+			return ko.computed(function() {
+				var searchInput = self.userInput().toLowerCase();
+				self.markers.removeAll();
+				self.allMarkers.forEach(function(marker) {
+					marker.setMap(null);
+				});
+				initialData.mapMarkers.forEach(function(place) {
+					if (place.title.toLowerCase().indexOf(searchInput) !== -1) {
+						self.markers.push(place);
+						self.setMarkers();
+					}
+				});
+			}, self);
+		};
+		
+		self.displayFoursquare = function(data) {
+			console.log(data);
+			console.log(self.allMarkers[0]);
+      self.infoWindow().open(self.map(), self.allMarkers[0]);
+			var review = $.ajax("https://api.foursquare.com/v2/venues/explore" +
+				"?client_id=BJPXEHF02BJRASDOVZFBTHE3AFMIG0PB0CAFFSZNB4XAWGHS" +
+				"&client_secret=MW5QV2SJS4FDQKS21MADPQGWB0V1YDJ2HVFESGLXBGZK2PXD" +
+				"&v=20130815&near=Paris, France&query=" + data.title, {
+				success: function(result) {
+					var similarVenues = result.response.groups[0].items;
+					for (var i = 0; i < similarVenues.length; i++) {
+						console.log(similarVenues[i].venue.name);
+					}
+				},
+				error: function() {console.log("no");}
+			});
+		
 		};
 		
 	};
-		
-	
 	ko.applyBindings(new ViewModel());
-});
+};
