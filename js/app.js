@@ -13,33 +13,40 @@ var googleSuccess = function () {
 		mapMarkers: [
 			{
 				position: new google.maps.LatLng(48.83397,2.31655),
-				title: 'L\'Entrepôt'
+				title: 'L\'Entrepôt',
+				category: 'Concert venue'
 			},
 			{
 				position: new google.maps.LatLng(48.83340,2.32438),
-				title: 'Prik Thaï'
+				title: 'Prik Thaï',
+				category: 'Thai restaurant'
 			},
 			{
 				position: new google.maps.LatLng(48.84171,2.30705),
-				title: 'Chez Quan'
+				title: 'Chez Quan',
+				category: 'Bar'
 			},
 			{
 				position: new google.maps.LatLng(48.84622,2.33716),
-				title: 'Jardin du Luxembourg'
+				title: 'Jardin du Luxembourg',
+				category: 'Park'
 			},
 			{
 				position: new google.maps.LatLng(48.84060,2.34944),
-				title: 'La BocaMexa'
+				title: 'La BocaMexa',
+				category: 'Mexican restaurant'
 			},
 			{
 				position: new google.maps.LatLng(48.82423,2.29881),
-				title: 'McDonald\'s Brancion'
+				title: 'McDonald\'s Brancion',
+				category: 'Fast food'
 			}
 		],
-		contentString : function(heading) {
+		contentString : function(heading, suggestions) {
 			return '<div id="infoContent">'+
 						'<h1>'+ heading +'</h1>' +
-						'<p>Some random text</p>' +
+						'<p>Here are some similar places in the area:</p>' +
+						'<p>' + suggestions + '</p>' +
 						'</div>';
 		}
 	};
@@ -97,16 +104,18 @@ var googleSuccess = function () {
 		self.displayFoursquare = function(data) {
 			console.log(data);
 			console.log(self.allMarkers[0]);
-      self.infoWindow().open(self.map(), self.allMarkers[0]);
+      
 			var review = $.ajax("https://api.foursquare.com/v2/venues/explore" +
 				"?client_id=BJPXEHF02BJRASDOVZFBTHE3AFMIG0PB0CAFFSZNB4XAWGHS" +
 				"&client_secret=MW5QV2SJS4FDQKS21MADPQGWB0V1YDJ2HVFESGLXBGZK2PXD" +
-				"&v=20130815&near=Paris, France&query=" + data.title, {
+				"&v=20130815&near=Paris, France&query=" + data.category, {
 				success: function(result) {
 					var similarVenues = result.response.groups[0].items;
 					for (var i = 0; i < similarVenues.length; i++) {
+						self.infoWindow().content = initialData.contentString(data.title, similarVenues[i].venue.name);
 						console.log(similarVenues[i].venue.name);
 					}
+					self.infoWindow().open(self.map(), self.allMarkers[0]);
 				},
 				error: function() {console.log("no");}
 			});
@@ -115,4 +124,5 @@ var googleSuccess = function () {
 		
 	};
 	ko.applyBindings(new ViewModel());
+	// Ça marche toujours ? Et là ? Yep.
 };
