@@ -3,6 +3,7 @@
 <head>
   <title>Neighborhood Map</title>
   <meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <link href='http://fonts.googleapis.com/css?family=Lato:300,700' rel='stylesheet' />
   <link rel="stylesheet" href="css/style.css" />
@@ -15,8 +16,8 @@
 		<div>
 			<input type="search" id="search-markers" placeholder="Filter markers" data-bind="textInput: userInput, event: {keyup: filterMarkers}">
 		</div>
-		<ul data-bind="foreach: markers">
-			<li><a data-bind="text: title, click: $parent.displayFoursquare"></a></li>
+		<ul data-bind="foreach: markersData">
+			<li><a data-bind="text: title, click: $parent.displayInfo"></a></li>
 		</ul>
 	</aside>
   <main id="map-canvas"></main>
