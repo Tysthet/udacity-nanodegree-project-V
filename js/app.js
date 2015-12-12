@@ -53,7 +53,7 @@ var googleSuccess = function () {
 		],
 		contentString : function(heading, suggestions) {
 			return '<div id="infoContent">'+
-				'<h1>'+ heading +'</h1>' +
+				'<h2>'+ heading +'</h2>' +
 				'<p>Here are some similar places in the area:</p>' +
 				'<ul>' + suggestions + '</ul>' +
 				'</div>';
@@ -84,6 +84,13 @@ var googleSuccess = function () {
 			place.position = new google.maps.LatLng(place.lat,place.lng);
 		});
 		
+		$("#close").click(function(e) {
+			e.preventDefault;
+			$("aside").toggleClass("active");
+			$("aside form").toggle();
+			$("aside ul").toggle();
+		});
+			
 		// Launching KO's binding engine.
 		ko.applyBindings(new ViewModel());
 	};
@@ -165,7 +172,8 @@ var googleSuccess = function () {
 			displayFoursquare(self.allMarkers[placeIndex]);
 		};
 		
-		// 
+		// Provides a way to filter markers by first clearing all the markers and then
+		// updating the observable array by testing it against the input from the user.
 		self.filterMarkers = function() {
 			return ko.computed(function() {
 			var searchInput = self.userInput().toLowerCase();
@@ -182,5 +190,7 @@ var googleSuccess = function () {
 		}, self);
 		};
 	};
+	
+	// Calling the initialisation function in last.
 	init();
 };
