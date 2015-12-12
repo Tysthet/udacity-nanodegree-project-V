@@ -1,24 +1,196 @@
-$.noConflict();
-jQuery(document).ready(function ($)  {
-	var model ={
-		mapOptions: {
-			center: { lat: -34.397, lng: 150.644},
-			zoom: 8
-		}
-	};
-	var viewModel = {
-		init: function () {
-			var mapOptions = {
-				center: { lat: 48.834536, lng: 2.317754},
-				zoom: 16
-			};
-			var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
-		}
-	};
-	var seachView = {};
-	var markersView = {};
+// Fallback in case of Google Maps failure.
+var googleError = function() {
+	$("main").text("Something went wrong with Google Maps. Please make sure that you have access to internet.");
+};
 
+// Interpreted as soon as Google Maps has successfully loaded.
+var googleSuccess = function () {
 	
-	// google.maps.event.addDomListener(window, 'load', initialize);
-	viewModel.init ();
-}) ();
+	// This is the Model that contains all of the data we'll use for launching the app.
+	var initialData = {
+		mainMap: {
+			center: {lat: 48.834536, lng: 2.317754},
+			zoom: 15,
+			mapTypeControl: false
+		},
+		mapMarkers: [
+			{
+				title: 'L\'Entrepôt',
+				category: 'Concert venue',
+				lat: 48.83397,
+				lng: 2.31655
+			},
+			{
+				title: 'Prik Thaï',
+				category: 'Thai restaurant',
+				lat: 48.83340,
+				lng: 2.32438
+			},
+			{
+				title: 'Chez Quan',
+				category: 'Bar',
+				lat: 48.84171,
+				lng: 2.30705
+			},
+			{
+				title: 'Jardin du Luxembourg',
+				category: 'Park',
+				lat: 48.84622,
+				lng: 2.33716
+			},
+			{
+				title: 'La BocaMexa',
+				category: 'Mexican restaurant',
+				lat: 48.84060,
+				lng: 2.34944
+			},
+			{
+				title: 'McDonald\'s Brancion',
+				category: 'Fast food',
+				lat: 48.82423,
+				lng: 2.29881
+			}
+		],
+		contentString : function(heading, suggestions) {
+			return '<div id="infoContent">'+
+				'<h2>'+ heading +'</h2>' +
+				'<p>Here are some similar places in the area:</p>' +
+				'<ul>' + suggestions + '</ul>' +
+				'</div>';
+		},
+		fsCall: "https://api.foursquare.com/v2/venues/explore" +
+				"?client_id=BJPXEHF02BJRASDOVZFBTHE3AFMIG0PB0CAFFSZNB4XAWGHS" +
+				"&client_secret=MW5QV2SJS4FDQKS21MADPQGWB0V1YDJ2HVFESGLXBGZK2PXD" +
+				"&v=20130815&near=Paris, France&query=",
+		fsError: '<div id="infoContent">'+
+						'<h1>Woops!</h1>' +
+						'<p>Looks like Foursquare\'s suggestions engine doesn\'t work.</p>' +
+						'<p>Please check your internet connection or try again later.</p>' +
+						'</div>'
+	};
+	
+	var init = function() {
+		
+		// Creating the map.
+		map = new google.maps.Map(document.getElementById('map-canvas'), initialData.mainMap);
+		
+		infoWindow = new google.maps.InfoWindow({
+				content: ""
+			});
+		
+		// Adding the map and position property to our marker data.
+		initialData.mapMarkers.forEach(function(place) {
+			place.map = map;
+			place.position = new google.maps.LatLng(place.lat,place.lng);
+		});
+		
+		$("#close").click(function(e) {
+			e.preventDefault;
+			$("aside").toggleClass("active");
+			$("aside form").toggle();
+			$("aside ul").toggle();
+		});
+			
+		// Launching KO's binding engine.
+		ko.applyBindings(new ViewModel());
+	};
+	
+	// The ViewModel, as per Knockout.js desired structure
+	var ViewModel = function () {
+		var self = this;
+		
+		// This property will receive the text entered in the input field.
+		self.userInput = ko.observable('');
+
+		// Creating an observable array and pushing the marker info from the Model in it.
+		self.markersData = ko.observableArray();
+		initialData.mapMarkers.forEach(function(place) {
+			self.markersData.push(place);
+		});
+		
+		// This function takes in a marker object, makes an AJAX call to Foursquare API,
+		// uses the result to set the infowindow's content and opens it on the map.
+		// A fallback is implemented in case of error.
+		var displayFoursquare = function(data) {
+      
+			$.ajax(initialData.fsCall + data.category, {
+				
+				success: function(result) {
+					var similarVenues = result.response.groups[0].items;
+					var placesArray = [];
+					var linkList = "";
+					
+					// I chose to limit the number of suggestions to 5.
+					for (var i = 0; i < 5; i++) {
+						placesArray.push(similarVenues[i].venue);
+					}
+					
+					placesArray.forEach(function(place) {
+						var listElement = "";
+						if (place.url) {
+						listElement += "<li><a href='" + place.url + "' target='_blank'>" +
+								place.name + "</a></li>";
+						} else {
+							listElement += "<li>" + place.name + "</li>";
+						}
+						linkList += listElement;
+					});
+					
+					infoWindow.setContent(initialData.contentString(data.title, linkList));
+					infoWindow.open(map, data);
+				},
+				
+				error: function() {
+					infoWindow.setContent(initialData.fsError);
+					infoWindow.open(map, data);
+				}
+			});	
+		};
+		
+		// This array will host all the google.maps.Marker objects.
+		self.allMarkers = [];
+		
+		// This function creates the google.maps.Marker objects and places them on the map.
+		// It also creates the click events that trigger the infowindow.
+		self.setMarkers = ko.computed(function() {
+			for (var i = 0; i < self.markersData().length; i++) {
+				var marker = new google.maps.Marker(self.markersData()[i]);
+				marker.addListener('click', (function(marker, i) {
+					return function() {
+						map.panTo(marker.position);
+						displayFoursquare(marker);
+        	};
+				})(marker, i));
+				self.allMarkers.push(marker);
+			}
+		}, this);
+		
+		// This enables to also display the infowindow from the list view.
+		self.displayInfo = function(marker) {
+			map.panTo(marker.position);
+			var placeIndex = initialData.mapMarkers.indexOf(marker);
+			displayFoursquare(self.allMarkers[placeIndex]);
+		};
+		
+		// Provides a way to filter markers by first clearing all the markers and then
+		// updating the observable array by testing it against the input from the user.
+		self.filterMarkers = function() {
+			return ko.computed(function() {
+			var searchInput = self.userInput().toLowerCase();
+			self.markersData.removeAll();
+			self.allMarkers.forEach(function(marker) {
+				marker.setMap(null);
+			});
+			initialData.mapMarkers.forEach(function(place) {
+				if (place.title.toLowerCase().indexOf(searchInput) !== -1) {
+					self.markersData.push(place);
+					self.setMarkers();
+				}
+			});
+		}, self);
+		};
+	};
+	
+	// Calling the initialisation function in last.
+	init();
+};

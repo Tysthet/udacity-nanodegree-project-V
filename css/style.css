@@ -1,13 +1,98 @@
 html,
 body,
 #map-canvas {
+	box-sizing: border-box;
 	height: 100%;
 	margin: 0;
 	padding: 0;
 }
 
-h1 {
-	text-align: center;
-	font-family: Lato, Arial, sans-serif;
+body {
+	font-size: 100%;
+	font-family: Lato, Arial, sans-serif !important;
+}
+
+h1, h2 {
+	font-family: Lato, Arial, sans-serif !important;
 	font-weight: normal;
+}
+
+h1 {
+	font-size: 2.2rem;
+	margin: 0 35px 0 15px;
+	color: #fff;
+}
+
+h2 {
+	text-align: center;
+	font-size: 1.5rem;
+}
+
+aside {
+	position: absolute;
+	z-index: 1;
+	right: 0;
+	margin: 10px;
+	background-color: rgba(100, 100, 100, 0.8);
+}
+
+ul {
+	font-size: 1.5rem;
+	line-height: 2.2rem;
+	color: #fff;
+	margin: 0;
+	padding: 20px;
+	list-style: none;
+	
+}
+
+main ul, p {
+	background-color: #fff;
+	padding: 0;
+	font-size: 1rem;
+	line-height: 1.5rem;
+	color: #333;
+}
+
+aside ul {
+	display: none;
+}
+
+
+aside li:hover {
+	color: #e8ddbd;
+}
+
+
+aside form {
+	font-size: 1.5rem;
+	padding: 0 20px;
+	display: none;
+}
+
+aside.active {
+	height: 45px;
+}
+
+input {
+	width: 100%;
+}
+
+img {
+	margin: 5px 5px;
+}
+
+#close {
+	font-size: 1rem;
+	line-height: 1rem;
+	position: absolute;
+	right: 10px;
+	top: 10px;
+	text-align: right;
+}
+
+.clearfix:after {
+  content: "";
+  display: table;
+  clear: both;
 }

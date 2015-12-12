@@ -3,15 +3,30 @@
 <head>
   <title>Neighborhood Map</title>
   <meta charset="utf-8" />
-  <link href='http://fonts.googleapis.com/css?family=Lato:300,700' rel='stylesheet' type='text/css' />
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <link href='http://fonts.googleapis.com/css?family=Lato:300,700' rel='stylesheet' />
   <link rel="stylesheet" href="css/style.css" />
+	<script src="js/lib/knockout-3.3.0.js"></script>
+	<script src="js/lib/jquery-2.1.4.min.js"></script>
+	<script src="js/app.js"></script>
 </head>
 <body>
-  <main id="map-canvas">
-	</main>
-  <script src="js/lib/knockout-3.3.0.js"></script>
-	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA62qa-y153fRIuEO4MQP7tN1QY3CjycXA"></script>
-	<script src="js/lib/jquery-2.1.4.min.js"></script>
-  <script src="js/app.js"></script>
+	<aside class="active">
+		<div class="clearfix">
+			<h1>Paris' Top Places</h1>
+			<a href="#" id="close">
+				<img src="img/fa-bars.png" alt="" width="13px" height="13px">
+			</a>
+		</div>
+		<form>
+			<input type="search" id="search-markers" placeholder="Filter markers" data-bind="textInput: userInput, event: {keyup: filterMarkers}">
+		</form>
+		<ul data-bind="foreach: markersData">
+			<li><a data-bind="text: title, click: $parent.displayInfo"></a></li>
+		</ul>
+	</aside>
+  <main id="map-canvas"></main>
+	<script async src="https://maps.googleapis.com/maps/api/js?callback=googleSuccess" onerror="googleError()"></script>
 </body>
 </html>
