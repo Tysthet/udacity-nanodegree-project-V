@@ -69,6 +69,13 @@ var googleSuccess = function () {
 						'</div>'
 	};
 	
+	// This function is in the global scope so it can easily be accessible.
+	var closeMenu = function() {
+		$("aside").addClass("active");
+		$("aside form").hide();
+		$("aside ul").hide();
+	};
+	
 	var init = function() {
 		
 		// Creating the map.
@@ -84,8 +91,9 @@ var googleSuccess = function () {
 			place.position = new google.maps.LatLng(place.lat,place.lng);
 		});
 		
+		// Setting the open / close button for the menu.
 		$("#close").click(function(e) {
-			e.preventDefault;
+			e.preventDefault();
 			$("aside").toggleClass("active");
 			$("aside form").toggle();
 			$("aside ul").toggle();
@@ -158,7 +166,9 @@ var googleSuccess = function () {
 				marker.addListener('click', (function(marker, i) {
 					return function() {
 						map.panTo(marker.position);
+						closeMenu();
 						displayFoursquare(marker);
+						map.fitBounds(marker.position);
         	};
 				})(marker, i));
 				self.allMarkers.push(marker);
@@ -168,6 +178,7 @@ var googleSuccess = function () {
 		// This enables to also display the infowindow from the list view.
 		self.displayInfo = function(marker) {
 			map.panTo(marker.position);
+			closeMenu();
 			var placeIndex = initialData.mapMarkers.indexOf(marker);
 			displayFoursquare(self.allMarkers[placeIndex]);
 		};
