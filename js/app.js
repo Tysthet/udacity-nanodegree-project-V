@@ -124,6 +124,9 @@ var googleSuccess = function () {
 			self.markersData.push(place);
 		});
 		
+		// This array will host all the google.maps.Marker objects.
+		self.allMarkers = [];
+		
 		// This function takes in a marker object, makes an AJAX call to Foursquare API,
 		// uses the result to set the infowindow's content and opens it on the map.
 		// A fallback is implemented in case of error.
@@ -152,6 +155,11 @@ var googleSuccess = function () {
 						linkList += listElement;
 					});
 					
+					if (self.allMarkers.length !== 0) {
+						self.allMarkers.forEach(function(marker) {
+							marker.setAnimation(undefined);
+						});
+					}
 					toggleBounce(data);
 					infoWindow.setContent(initialData.contentString(data.title, linkList));
 					infoWindow.open(map, data);
@@ -166,9 +174,6 @@ var googleSuccess = function () {
 				}
 			});	
 		};
-		
-		// This array will host all the google.maps.Marker objects.
-		self.allMarkers = [];
 		
 		// This function creates the google.maps.Marker objects and places them on the map.
 		// It also creates the click events that trigger the infowindow.
