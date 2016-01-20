@@ -85,13 +85,14 @@ var googleSuccess = function () {
 				content: ""
 			});
 		
-		toggleBounce = function(marker) {
+	/*	toggleBounce = function(marker) {
 			if ((marker.getAnimation() !== undefined) && (marker.getAnimation() !== null)) {
 				marker.setAnimation(undefined);
 			} else {
 				marker.setAnimation(google.maps.Animation.BOUNCE);
 			}
 		};
+		*/
 		
 		// Adding the map and position property to our marker data.
 		initialData.mapMarkers.forEach(function(place) {
@@ -160,7 +161,9 @@ var googleSuccess = function () {
 							marker.setAnimation(undefined);
 						});
 					}
-					toggleBounce(data);
+					
+					console.log(data);
+					data.setAnimation(google.maps.Animation.BOUNCE);
 					infoWindow.setContent(initialData.contentString(data.title, linkList));
 					infoWindow.open(map, data);
 					infoWindow.addListener('closeclick', function() {
@@ -202,7 +205,6 @@ var googleSuccess = function () {
 			displayFoursquare(markerObject);
 			var panOffset = {lat: markerObject.lat + 0.025, lng: markerObject.lng};
 			map.panTo(panOffset);
-			// toggleBounce(markerObject);
 		};
 		
 		// Provides a way to filter markers by first clearing all the markers and then
@@ -214,6 +216,7 @@ var googleSuccess = function () {
 			self.allMarkers.forEach(function(marker) {
 				marker.setMap(null);
 			});
+			// self.allMarkers = [];
 			initialData.mapMarkers.forEach(function(place) {
 				if (place.title.toLowerCase().indexOf(searchInput) !== -1) {
 					self.markersData.push(place);
