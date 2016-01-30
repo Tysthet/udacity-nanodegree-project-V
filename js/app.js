@@ -63,7 +63,7 @@ var googleSuccess = function () {
 				"&client_secret=MW5QV2SJS4FDQKS21MADPQGWB0V1YDJ2HVFESGLXBGZK2PXD" +
 				"&v=20130815&near=Paris, France&query=",
 		fsError: '<div id="infoContent">'+
-						'<h1>Woops!</h1>' +
+						'<h2>Woops!</h2>' +
 						'<p>Looks like Foursquare\'s suggestions engine doesn\'t work.</p>' +
 						'<p>Please check your internet connection or try again later.</p>' +
 						'</div>'
