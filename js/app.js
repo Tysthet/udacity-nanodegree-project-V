@@ -85,14 +85,6 @@ var googleSuccess = function () {
 				content: ""
 			});
 		
-		toggleBounce = function(marker) {
-			if ((marker.getAnimation() !== undefined) && (marker.getAnimation() !== null)) {
-				marker.setAnimation(undefined);
-			} else {
-				marker.setAnimation(google.maps.Animation.BOUNCE);
-			}
-		};
-		
 		// Adding the map and position property to our marker data.
 		initialData.mapMarkers.forEach(function(place) {
 			place.map = map;
@@ -124,6 +116,9 @@ var googleSuccess = function () {
 			self.markersData.push(place);
 		});
 		
+		// This array will host all the google.maps.Marker objects.
+		self.allMarkers = [];
+		
 		// This function takes in a marker object, makes an AJAX call to Foursquare API,
 		// uses the result to set the infowindow's content and opens it on the map.
 		// A fallback is implemented in case of error.
@@ -137,6 +132,7 @@ var googleSuccess = function () {
 					var linkList = "";
 					
 					// I chose to limit the number of suggestions to 5.
+					// TODO: Include a pagination system to access more links.
 					for (var i = 0; i < 5; i++) {
 						placesArray.push(similarVenues[i].venue);
 					}
@@ -152,7 +148,13 @@ var googleSuccess = function () {
 						linkList += listElement;
 					});
 					
-					toggleBounce(data);
+					if (self.allMarkers.length !== 0) {
+						self.allMarkers.forEach(function(marker) {
+							marker.setAnimation(undefined);
+						});
+					}
+					
+					data.setAnimation(google.maps.Animation.BOUNCE);
 					infoWindow.setContent(initialData.contentString(data.title, linkList));
 					infoWindow.open(map, data);
 					infoWindow.addListener('closeclick', function() {
@@ -167,12 +169,10 @@ var googleSuccess = function () {
 			});	
 		};
 		
-		// This array will host all the google.maps.Marker objects.
-		self.allMarkers = [];
-		
 		// This function creates the google.maps.Marker objects and places them on the map.
 		// It also creates the click events that trigger the infowindow.
-		self.setMarkers = ko.computed(function() {
+		
+		self.setMarkers = function() {
 			for (var i = 0; i < self.markersData().length; i++) {
 				var marker = new google.maps.Marker(self.markersData()[i]);
 				marker.addListener('click', (function(marker, i) {
@@ -180,43 +180,41 @@ var googleSuccess = function () {
 						closeMenu();
 						displayFoursquare(marker);
 						var panOffset = {lat: marker.lat + 0.025, lng: marker.lng};
-						map.panTo(panOffset);
-						// toggleBounce(marker);
-						
+						map.panTo(panOffset);		
         	};
 				})(marker, i));
 				self.allMarkers.push(marker);
 			}
-		}, this);
+		};
+		self.setMarkers();
 		
 		// This enables to also display the infowindow from the list view.
 		self.displayInfo = function(marker) {
 			closeMenu();
-			var placeIndex = initialData.mapMarkers.indexOf(marker);
+			var placeIndex = self.markersData().indexOf(marker);
 			var markerObject = self.allMarkers[placeIndex];
 			displayFoursquare(markerObject);
 			var panOffset = {lat: markerObject.lat + 0.025, lng: markerObject.lng};
 			map.panTo(panOffset);
-			// toggleBounce(markerObject);
 		};
 		
 		// Provides a way to filter markers by first clearing all the markers and then
-		// updating the observable array by testing it against the input from the user.
+		// updating the observable array by testing it against the input from the user.	
 		self.filterMarkers = function() {
-			return ko.computed(function() {
 			var searchInput = self.userInput().toLowerCase();
 			self.markersData.removeAll();
 			self.allMarkers.forEach(function(marker) {
 				marker.setMap(null);
 			});
+			self.allMarkers = [];
 			initialData.mapMarkers.forEach(function(place) {
 				if (place.title.toLowerCase().indexOf(searchInput) !== -1) {
 					self.markersData.push(place);
-					self.setMarkers();
 				}
 			});
-		}, self);
+			self.setMarkers();
 		};
+		
 	};
 	
 	// Calling the initialisation function in last.
